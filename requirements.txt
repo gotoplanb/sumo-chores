@@ -1,0 +1,5 @@
+httpx==0.27.0
+pydantic==2.6.1
+PyGithub==2.1.1
+rich==13.7.0
+typer==0.9.0 
