@@ -1,0 +1,83 @@
+name: Test Sumo Logic Chores
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      tasks:
+        description: 'Tasks to run (role-check, monitor-tags, all)'
+        required: true
+        default: 'all'
+      role_id:
+        description: 'Role ID to check for'
+        required: false
+      tag_allowlist:
+        description: 'Comma-separated list of allowed tags'
+        required: false
+        default: 'prod,dev,staging,test'
+
+jobs:
+  # Build and test the Docker image
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install uv
+        run: pip install uv
+      
+      - name: Install dependencies
+        run: |
+          uv venv .venv
+          uv pip install -r requirements.txt
+          uv pip install black pylint pytest pytest-asyncio pytest-mock
+      
+      - name: Format check with Black
+        run: |
+          source .venv/bin/activate
+          black --check src/
+      
+      - name: Lint with pylint
+        run: |
+          source .venv/bin/activate
+          pylint src/
+      
+      - name: Build Docker image
+        run: docker build -t sumo-chores:test .
+      
+      - name: Test Docker image
+        run: |
+          docker run --rm sumo-chores:test --help
+
+  # Test the action with mock data (when secrets are provided)
+  test-with-mock:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Sumo Logic Chores
+        uses: ./
+        id: sumo-chores
+        with:
+          tasks: ${{ github.event.inputs.tasks }}
+          sumo_access_id: ${{ secrets.SUMO_ACCESS_ID }}
+          sumo_access_key: ${{ secrets.SUMO_ACCESS_KEY }}
+          role_id: ${{ github.event.inputs.role_id }}
+          tag_allowlist: ${{ github.event.inputs.tag_allowlist }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Display results
+        run: |
+          echo "Users with role: ${{ steps.sumo-chores.outputs.users_count }}"
+          echo "Non-compliant monitors: ${{ steps.sumo-chores.outputs.noncompliant_count }}" 

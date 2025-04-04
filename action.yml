@@ -1,0 +1,57 @@
+name: "Sumo Logic Chores"
+description: "GitHub Action for Sumo Logic administration tasks including role checking and monitor tag validation"
+author: "David Stanton"
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+
+inputs:
+  tasks:
+    description: "Comma-separated list of tasks to run (role-check, monitor-tags, all)"
+    required: true
+    default: "all"
+  
+  sumo_access_id:
+    description: "Sumo Logic Access ID"
+    required: true
+  
+  sumo_access_key:
+    description: "Sumo Logic Access Key"
+    required: true
+  
+  role_id:
+    description: "Role ID to check for (required if role-check task is selected)"
+    required: false
+  
+  tag_allowlist:
+    description: "Comma-separated list of allowed tags (required if monitor-tags task is selected)"
+    required: false
+  
+  sumo_api_endpoint:
+    description: "Sumo Logic API endpoint"
+    required: false
+    default: "https://api.sumologic.com/api"
+  
+  github_token:
+    description: "GitHub token for creating issues (required if monitor-tags task is selected and you want to create issues)"
+    required: false
+
+outputs:
+  users_with_role:
+    description: "JSON list of users with the specified role"
+  
+  users_count:
+    description: "Count of users with the specified role"
+  
+  noncompliant_monitors:
+    description: "JSON list of monitors with non-compliant tags"
+  
+  noncompliant_count:
+    description: "Count of monitors with non-compliant tags"
+  
+  issues_created:
+    description: "JSON list of GitHub issues created"
+
+runs:
+  using: "docker"
+  image: "Dockerfile" 

@@ -6,44 +6,44 @@ This GitHub Action will help with Sumo Logic administration tasks, packaged as a
 ## Tasks
 
 ### 🏗️ Initial Setup
-- [ ] Create repository structure
-- [ ] Set up GitHub Actions workflow for testing
-- [ ] Create Dockerfile with Python 3.13
-- [ ] Create requirements.txt with httpx and other dependencies
-- [ ] Set up action.yml with inputs and outputs
-- [ ] Create comprehensive README.md
+- [x] Create repository structure
+- [x] Set up GitHub Actions workflow for testing
+- [x] Create Dockerfile with Python 3.13
+- [x] Create requirements.txt with httpx and other dependencies
+- [x] Set up action.yml with inputs and outputs
+- [x] Create comprehensive README.md
 
 ### 📦 Core Functionality
-- [ ] Implement task selection mechanism
-- [ ] Create main.py entry point
-- [ ] Set up Sumo Logic API client with httpx
-- [ ] Set up GitHub API client for issue creation
-- [ ] Implement error handling and logging
-- [ ] Create utility functions for common operations
+- [x] Implement task selection mechanism
+- [x] Create main.py entry point
+- [x] Set up Sumo Logic API client with httpx
+- [x] Set up GitHub API client for issue creation
+- [x] Implement error handling and logging
+- [x] Create utility functions for common operations
 
 ### 👥 Role Checker Feature
-- [ ] Implement user fetching from Sumo Logic API
-- [ ] Implement role checking logic
-- [ ] Add output formatting for role check results
+- [x] Implement user fetching from Sumo Logic API
+- [x] Implement role checking logic
+- [x] Add output formatting for role check results
 - [ ] Add testing for role checker
 
 ### 🏷️ Monitor Tag Validator
-- [ ] Implement monitor fetching from Sumo Logic API
-- [ ] Implement tag validation against allowlist
-- [ ] Create GitHub issues for non-compliant monitors
+- [x] Implement monitor fetching from Sumo Logic API
+- [x] Implement tag validation against allowlist
+- [x] Create GitHub issues for non-compliant monitors
 - [ ] Add testing for monitor tag validator
 
 ### 🧪 Testing
 - [ ] Create unit tests
 - [ ] Set up integration tests
 - [ ] Create test fixtures and mocks
-- [ ] Add test workflow in GitHub Actions
+- [x] Add test workflow in GitHub Actions
 
 ### 📚 Documentation
-- [ ] Complete README with usage examples
-- [ ] Add input parameter documentation
-- [ ] Document output formats
-- [ ] Create example workflows
+- [x] Complete README with usage examples
+- [x] Add input parameter documentation
+- [x] Document output formats
+- [x] Create example workflows
 
 ### 🚀 Publishing
 - [ ] Create release workflow
