@@ -80,8 +80,8 @@ async def test_main_async_monitor_tags(mock_httpx_client):
                 
                 # Verify the data
                 noncompliant_monitors = json.loads(results["noncompliant_monitors"])
-                assert results["noncompliant_count"] == 2  # Two monitors have non-compliant tags
-                assert len(noncompliant_monitors) == 2
+                assert results["noncompliant_count"] == 3  # Three monitors have non-compliant tags
+                assert len(noncompliant_monitors) == 3
                 
                 # But role check results are not present
                 assert "users_with_role" not in results
@@ -126,8 +126,8 @@ async def test_main_async_all_tasks(mock_httpx_client):
                 
                 # Verify the monitor tag data
                 noncompliant_monitors = json.loads(results["noncompliant_monitors"])
-                assert results["noncompliant_count"] == 2
-                assert len(noncompliant_monitors) == 2
+                assert results["noncompliant_count"] == 3
+                assert len(noncompliant_monitors) == 3
 
 
 @pytest.mark.asyncio

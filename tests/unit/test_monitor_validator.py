@@ -31,14 +31,15 @@ async def test_validate_monitor_tags_with_violations(mock_httpx_client):
             noncompliant_monitors = json.loads(results["noncompliant_monitors"])
             
             # Check the count matches
-            assert results["noncompliant_count"] == 2  # Monitor 1 and 3 have non-compliant tags
+            assert results["noncompliant_count"] == 3  # We have 3 monitors with non-compliant tags
             
             # Check we have the expected monitors
-            assert len(noncompliant_monitors) == 2
+            assert len(noncompliant_monitors) == 3
             
             # Get monitor names
             monitor_names = [monitor["name"] for monitor in noncompliant_monitors]
             assert "API Latency Monitor" in monitor_names  # Has 'latency' and 'api' tags
+            assert "Database CPU Monitor" in monitor_names  # Has 'database' and 'performance' tags
             assert "Network Traffic Monitor" in monitor_names  # Has 'network', 'traffic', 'critical' tags
             
             # Check non-compliant tags
@@ -46,6 +47,9 @@ async def test_validate_monitor_tags_with_violations(mock_httpx_client):
                 if monitor["name"] == "API Latency Monitor":
                     assert set(monitor["non_compliant_tags"]) == {"api", "latency"}
                     assert set(monitor["compliant_tags"]) == {"prod"}
+                elif monitor["name"] == "Database CPU Monitor":
+                    assert set(monitor["non_compliant_tags"]) == {"database", "performance"}
+                    assert set(monitor["compliant_tags"]) == {"dev"}
                 elif monitor["name"] == "Network Traffic Monitor":
                     assert set(monitor["non_compliant_tags"]) == {"network", "traffic", "critical"}
                     assert set(monitor["compliant_tags"]) == {"prod"}
@@ -97,6 +101,14 @@ async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
         {
             "url": "https://github.com/owner/repo/issues/2",
             "number": 2,
+            "title": "Non-compliant tags found in Sumo Logic monitor: Database CPU Monitor",
+            "monitor_id": "0000000000MONITOR2",
+            "monitor_name": "Database CPU Monitor",
+            "status": "created"
+        },
+        {
+            "url": "https://github.com/owner/repo/issues/3",
+            "number": 3,
             "title": "Non-compliant tags found in Sumo Logic monitor: Network Traffic Monitor",
             "monitor_id": "0000000000MONITOR3",
             "monitor_name": "Network Traffic Monitor",
@@ -121,11 +133,12 @@ async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
             issues_created = json.loads(results["issues_created"])
             
             # Check the issues were created
-            assert len(issues_created) == 2
+            assert len(issues_created) == 3
             
             # Check issue details
             issue_monitors = [issue["monitor_name"] for issue in issues_created]
             assert "API Latency Monitor" in issue_monitors
+            assert "Database CPU Monitor" in issue_monitors
             assert "Network Traffic Monitor" in issue_monitors
 
 
