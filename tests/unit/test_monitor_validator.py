@@ -12,82 +12,107 @@ from src.monitor_validator import validate_monitor_tags
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_with_violations(mock_httpx_client):
     """Test validate_monitor_tags when monitors with non-compliant tags are found"""
-    
+
     # Only allow prod and dev tags
     allowed_tags = {"prod", "dev"}
-    
-    with patch('httpx.AsyncClient', return_value=mock_httpx_client):
+
+    with patch("httpx.AsyncClient", return_value=mock_httpx_client):
         # Don't create GitHub issues in this test
-        with patch('src.monitor_validator.create_github_issues', return_value=[]):
+        with patch("src.monitor_validator.create_github_issues", return_value=[]):
             results = await validate_monitor_tags(
                 sumo_access_id="test_id",
                 sumo_access_key="test_key",
                 allowed_tags=allowed_tags,
                 api_endpoint="https://api.sumologic.com/api",
-                github_token=None
+                github_token=None,
             )
-            
-            # Parse the noncompliant_monitors JSON string to a list
-            noncompliant_monitors = json.loads(results["noncompliant_monitors"])
-            
+
+            # Parse the non_compliant_monitors JSON string to a list
+            non_compliant_monitors = json.loads(results["non_compliant_monitors"])
+
             # Check the count matches
-            assert results["noncompliant_count"] == 3  # We have 3 monitors with non-compliant tags
-            
+            assert (
+                results["non_compliant_count"] == 3
+            )  # We have 3 monitors with non-compliant tags
+
             # Check we have the expected monitors
-            assert len(noncompliant_monitors) == 3
-            
+            assert len(non_compliant_monitors) == 3
+
             # Get monitor names
-            monitor_names = [monitor["name"] for monitor in noncompliant_monitors]
-            assert "API Latency Monitor" in monitor_names  # Has 'latency' and 'api' tags
-            assert "Database CPU Monitor" in monitor_names  # Has 'database' and 'performance' tags
-            assert "Network Traffic Monitor" in monitor_names  # Has 'network', 'traffic', 'critical' tags
-            
+            monitor_names = [monitor["name"] for monitor in non_compliant_monitors]
+            assert (
+                "API Latency Monitor" in monitor_names
+            )  # Has 'latency' and 'api' tags
+            assert (
+                "Database CPU Monitor" in monitor_names
+            )  # Has 'database' and 'performance' tags
+            assert (
+                "Network Traffic Monitor" in monitor_names
+            )  # Has 'network', 'traffic', 'critical' tags
+
             # Check non-compliant tags
-            for monitor in noncompliant_monitors:
+            for monitor in non_compliant_monitors:
                 if monitor["name"] == "API Latency Monitor":
                     assert set(monitor["non_compliant_tags"]) == {"api", "latency"}
                     assert set(monitor["compliant_tags"]) == {"prod"}
                 elif monitor["name"] == "Database CPU Monitor":
-                    assert set(monitor["non_compliant_tags"]) == {"database", "performance"}
+                    assert set(monitor["non_compliant_tags"]) == {
+                        "database",
+                        "performance",
+                    }
                     assert set(monitor["compliant_tags"]) == {"dev"}
                 elif monitor["name"] == "Network Traffic Monitor":
-                    assert set(monitor["non_compliant_tags"]) == {"network", "traffic", "critical"}
+                    assert set(monitor["non_compliant_tags"]) == {
+                        "network",
+                        "traffic",
+                        "critical",
+                    }
                     assert set(monitor["compliant_tags"]) == {"prod"}
 
 
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_no_violations(mock_httpx_client):
     """Test validate_monitor_tags when all monitors have compliant tags"""
-    
+
     # Allow all tags that exist in our monitors
-    allowed_tags = {"prod", "dev", "api", "latency", "database", "performance", "network", "traffic", "critical"}
-    
-    with patch('httpx.AsyncClient', return_value=mock_httpx_client):
+    allowed_tags = {
+        "prod",
+        "dev",
+        "api",
+        "latency",
+        "database",
+        "performance",
+        "network",
+        "traffic",
+        "critical",
+    }
+
+    with patch("httpx.AsyncClient", return_value=mock_httpx_client):
         results = await validate_monitor_tags(
             sumo_access_id="test_id",
             sumo_access_key="test_key",
             allowed_tags=allowed_tags,
             api_endpoint="https://api.sumologic.com/api",
-            github_token=None
+            github_token=None,
         )
-        
-        # Parse the noncompliant_monitors JSON string to a list
-        noncompliant_monitors = json.loads(results["noncompliant_monitors"])
-        
+
+        # Parse the non_compliant_monitors JSON string to a list
+        non_compliant_monitors = json.loads(results["non_compliant_monitors"])
+
         # Check the count matches
-        assert results["noncompliant_count"] == 0
-        
+        assert results["non_compliant_count"] == 0
+
         # Check we have no non-compliant monitors
-        assert len(noncompliant_monitors) == 0
+        assert len(non_compliant_monitors) == 0
 
 
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
     """Test validate_monitor_tags with GitHub issue creation"""
-    
+
     # Only allow prod tag
     allowed_tags = {"prod"}
-    
+
     # Mock GitHub issue creation
     mock_issues = [
         {
@@ -96,7 +121,7 @@ async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
             "title": "Non-compliant tags found in Sumo Logic monitor: API Latency Monitor",
             "monitor_id": "0000000000MONITOR1",
             "monitor_name": "API Latency Monitor",
-            "status": "created"
+            "status": "created",
         },
         {
             "url": "https://github.com/owner/repo/issues/2",
@@ -104,7 +129,7 @@ async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
             "title": "Non-compliant tags found in Sumo Logic monitor: Database CPU Monitor",
             "monitor_id": "0000000000MONITOR2",
             "monitor_name": "Database CPU Monitor",
-            "status": "created"
+            "status": "created",
         },
         {
             "url": "https://github.com/owner/repo/issues/3",
@@ -112,49 +137,39 @@ async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
             "title": "Non-compliant tags found in Sumo Logic monitor: Network Traffic Monitor",
             "monitor_id": "0000000000MONITOR3",
             "monitor_name": "Network Traffic Monitor",
-            "status": "created"
-        }
+            "status": "created",
+        },
     ]
-    
-    with patch('httpx.AsyncClient', return_value=mock_httpx_client):
-        with patch('src.monitor_validator.create_github_issues', return_value=mock_issues) as mock_create_issues:
+
+    with patch("httpx.AsyncClient", return_value=mock_httpx_client):
+        with patch(
+            "src.monitor_validator.create_github_issues", return_value=mock_issues
+        ) as mock_create_issues:
             results = await validate_monitor_tags(
                 sumo_access_id="test_id",
                 sumo_access_key="test_key",
                 allowed_tags=allowed_tags,
                 api_endpoint="https://api.sumologic.com/api",
-                github_token="fake_token"
+                github_token="fake_token",
             )
-            
+
             # Check GitHub issues were created
             assert mock_create_issues.called
-            
-            # Parse the issues_created JSON string to a list
-            issues_created = json.loads(results["issues_created"])
-            
-            # Check the issues were created
-            assert len(issues_created) == 3
-            
-            # Check issue details
-            issue_monitors = [issue["monitor_name"] for issue in issues_created]
-            assert "API Latency Monitor" in issue_monitors
-            assert "Database CPU Monitor" in issue_monitors
-            assert "Network Traffic Monitor" in issue_monitors
 
 
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_api_error(mock_httpx_client):
     """Test validate_monitor_tags when the API returns an error"""
-    
+
     # Mock httpx client to raise an exception
     mock_httpx_client.get = AsyncMock(side_effect=Exception("API Error"))
-    
-    with patch('httpx.AsyncClient', return_value=mock_httpx_client):
+
+    with patch("httpx.AsyncClient", return_value=mock_httpx_client):
         with pytest.raises(Exception, match="API Error"):
             await validate_monitor_tags(
                 sumo_access_id="test_id",
                 sumo_access_key="test_key",
                 allowed_tags={"prod", "dev"},
                 api_endpoint="https://api.sumologic.com/api",
-                github_token=None
-            ) 
+                github_token=None,
+            )

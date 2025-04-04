@@ -13,6 +13,7 @@ import httpx
 
 # --- Environment Setup Fixtures ---
 
+
 @pytest.fixture
 def load_env():
     """Load environment variables from .env file if it exists"""
@@ -29,6 +30,7 @@ def load_env():
 
 # --- Mock Data Fixtures ---
 
+
 @pytest.fixture
 def mock_users_data() -> Dict[str, Any]:
     """Sample users data response from Sumo Logic API"""
@@ -41,8 +43,9 @@ def mock_users_data() -> Dict[str, Any]:
                 "email": "john.doe@example.com",
                 "isActive": True,
                 "isLocked": False,
+                "roleIds": ["0000000000AAAAA1"],
                 "createdAt": "2023-01-01T00:00:00.000Z",
-                "modifiedAt": "2023-01-01T00:00:00.000Z"
+                "modifiedAt": "2023-01-01T00:00:00.000Z",
             },
             {
                 "id": "0000000000000002",
@@ -51,8 +54,9 @@ def mock_users_data() -> Dict[str, Any]:
                 "email": "jane.smith@example.com",
                 "isActive": True,
                 "isLocked": False,
+                "roleIds": ["0000000000BBBBB2"],
                 "createdAt": "2023-01-02T00:00:00.000Z",
-                "modifiedAt": "2023-01-02T00:00:00.000Z"
+                "modifiedAt": "2023-01-02T00:00:00.000Z",
             },
             {
                 "id": "0000000000000003",
@@ -61,9 +65,10 @@ def mock_users_data() -> Dict[str, Any]:
                 "email": "bob.johnson@example.com",
                 "isActive": True,
                 "isLocked": False,
+                "roleIds": ["0000000000AAAAA1", "0000000000CCCCC3"],
                 "createdAt": "2023-01-03T00:00:00.000Z",
-                "modifiedAt": "2023-01-03T00:00:00.000Z"
-            }
+                "modifiedAt": "2023-01-03T00:00:00.000Z",
+            },
         ]
     }
 
@@ -79,7 +84,7 @@ def mock_roles_data() -> List[Dict[str, Any]]:
                     "name": "Administrator",
                     "description": "Full admin access",
                     "filterPredicate": None,
-                    "users": []
+                    "users": [],
                 }
             ]
         },
@@ -90,7 +95,7 @@ def mock_roles_data() -> List[Dict[str, Any]]:
                     "name": "Analyst",
                     "description": "Analytics access",
                     "filterPredicate": None,
-                    "users": []
+                    "users": [],
                 }
             ]
         },
@@ -101,17 +106,17 @@ def mock_roles_data() -> List[Dict[str, Any]]:
                     "name": "Administrator",
                     "description": "Full admin access",
                     "filterPredicate": None,
-                    "users": []
+                    "users": [],
                 },
                 {
                     "id": "0000000000CCCCC3",
                     "name": "ReadOnly",
                     "description": "Read-only access",
                     "filterPredicate": None,
-                    "users": []
-                }
+                    "users": [],
+                },
             ]
-        }
+        },
     ]
 
 
@@ -124,84 +129,83 @@ def mock_monitors_data() -> Dict[str, Any]:
                 "id": "0000000000MONITOR1",
                 "name": "API Latency Monitor",
                 "description": "Monitors API response times",
+                "tags": ["prod", "api", "latency"],
                 "contentType": {
                     "type": "MonitorsLibraryMonitor",
-                    "tags": ["prod", "api", "latency"]
                 },
                 "createdAt": "2023-02-01T00:00:00.000Z",
                 "createdBy": "0000000000000001",
                 "modifiedAt": "2023-02-01T12:00:00.000Z",
                 "modifiedBy": "0000000000000001",
-                "parentId": "0000000000FOLDER1"
+                "parentId": "0000000000FOLDER1",
             },
             {
                 "id": "0000000000MONITOR2",
                 "name": "Database CPU Monitor",
                 "description": "Monitors database CPU usage",
+                "tags": ["dev", "database", "performance"],
                 "contentType": {
                     "type": "MonitorsLibraryMonitor",
-                    "tags": ["dev", "database", "performance"]
                 },
                 "createdAt": "2023-02-02T00:00:00.000Z",
                 "createdBy": "0000000000000002",
                 "modifiedAt": "2023-02-02T12:00:00.000Z",
                 "modifiedBy": "0000000000000002",
-                "parentId": "0000000000FOLDER1"
+                "parentId": "0000000000FOLDER1",
             },
             {
                 "id": "0000000000MONITOR3",
                 "name": "Network Traffic Monitor",
                 "description": "Monitors network traffic",
+                "tags": ["prod", "network", "traffic", "critical"],
                 "contentType": {
                     "type": "MonitorsLibraryMonitor",
-                    "tags": ["prod", "network", "traffic", "critical"]
                 },
                 "createdAt": "2023-02-03T00:00:00.000Z",
                 "createdBy": "0000000000000003",
                 "modifiedAt": "2023-02-03T12:00:00.000Z",
                 "modifiedBy": "0000000000000003",
-                "parentId": "0000000000FOLDER2"
+                "parentId": "0000000000FOLDER2",
             },
             {
                 "id": "0000000000MONITOR4",
                 "name": "Memory Usage Monitor",
                 "description": "Monitors server memory usage",
-                "contentType": {
-                    "type": "MonitorsLibraryMonitor",
-                    "tags": []
-                },
+                "tags": [],
+                "contentType": {"type": "MonitorsLibraryMonitor"},
                 "createdAt": "2023-02-04T00:00:00.000Z",
                 "createdBy": "0000000000000001",
                 "modifiedAt": "2023-02-04T12:00:00.000Z",
                 "modifiedBy": "0000000000000001",
-                "parentId": "0000000000FOLDER2"
-            }
+                "parentId": "0000000000FOLDER2",
+            },
         ]
     }
 
 
 # --- Mock Client Fixtures ---
 
+
 @pytest.fixture
 def mock_httpx_client(mock_users_data, mock_roles_data, mock_monitors_data):
     """Create a mocked httpx client for testing"""
-    
+
     class MockResponse:
         def __init__(self, data, status_code=200):
             self.status_code = status_code
             self._data = data
-        
+
         def json(self):
             return self._data
-        
+
         def raise_for_status(self):
             if self.status_code >= 400:
                 raise httpx.HTTPStatusError(
                     f"HTTP Error {self.status_code}",
                     request=httpx.Request("GET", "https://example.com"),
-                    response=self
+                    response=self,
                 )
-    
+
     async def mock_get(url, *args, **kwargs):
         if "/v1/users" in url and not url.endswith("/roles"):
             return MockResponse(mock_users_data)
@@ -209,21 +213,23 @@ def mock_httpx_client(mock_users_data, mock_roles_data, mock_monitors_data):
             # Extract user ID from URL
             user_id = url.split("/v1/users/")[1].split("/roles")[0]
             # Map user ID to a mock roles response
-            user_index = int(user_id[-1]) - 1  # Get last character and convert to zero-based index
+            user_index = (
+                int(user_id[-1]) - 1
+            )  # Get last character and convert to zero-based index
             if 0 <= user_index < len(mock_roles_data):
                 return MockResponse(mock_roles_data[user_index])
             return MockResponse({"data": []})
         elif "/v1/monitors" in url:
             return MockResponse(mock_monitors_data)
         return MockResponse({"data": []})
-    
+
     # Create async mock client
     mock_client = AsyncMock()
     mock_client.get = AsyncMock(side_effect=mock_get)
-    
+
     # Mock enter/exit for async context manager
     mock_client.__aenter__.return_value = mock_client
-    
+
     return mock_client
 
 
@@ -231,21 +237,21 @@ def mock_httpx_client(mock_users_data, mock_roles_data, mock_monitors_data):
 def mock_github_client():
     """Create a mocked github client for testing"""
     mock_repo = MagicMock()
-    
+
     # Mock issue creation
     mock_issue = MagicMock()
     mock_issue.html_url = "https://github.com/owner/repo/issues/1"
     mock_issue.number = 1
     mock_issue.title = "Test Issue"
-    
+
     # Mock get_issues to return empty list (no existing issues)
     mock_repo.get_issues.return_value = []
-    
+
     # Mock create_issue to return mock issue
     mock_repo.create_issue.return_value = mock_issue
-    
+
     # Mock Github client
     mock_github = MagicMock()
     mock_github.get_repo.return_value = mock_repo
-    
-    return mock_github 
+
+    return mock_github

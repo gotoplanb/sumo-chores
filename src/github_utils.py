@@ -27,19 +27,23 @@ def set_github_output(results: Dict[str, Any]) -> None:
     """
     # Check if running in GitHub Actions
     if os.environ.get("GITHUB_ACTIONS") != "true":
-        console.print("[yellow]Not running in GitHub Actions, skipping output setting[/]")
+        console.print(
+            "[yellow]Not running in GitHub Actions, skipping output setting[/]"
+        )
         return
-    
+
     # Get GitHub output file path
     output_file = os.environ.get("GITHUB_OUTPUT")
     if not output_file:
-        console.print("[yellow]GITHUB_OUTPUT environment variable not set, using default mechanism[/]")
+        console.print(
+            "[yellow]GITHUB_OUTPUT environment variable not set, using default mechanism[/]"
+        )
         for key, value in results.items():
             # Use ::set-output for backward compatibility
             # In newer GitHub Actions, this is deprecated but will work
             print(f"::set-output name={key}::{value}")
         return
-    
+
     # Write to GitHub output file
     with open(output_file, "a") as f:
         for key, value in results.items():
@@ -74,29 +78,29 @@ async def create_github_issues(
         github_repo = os.environ.get("GITHUB_REPOSITORY", "")
         if "/" in github_repo:
             repo_owner, repo_name = github_repo.split("/", 1)
-    
+
     # Validate repository information
     if not repo_owner or not repo_name:
         console.print("[bold red]Error:[/] Repository information not available")
         return []
-    
+
     # Create PyGithub instance
     g = github.Github(github_token)
-    
+
     # Get repository
     try:
         repo = g.get_repo(f"{repo_owner}/{repo_name}")
     except github.GithubException as e:
         console.print(f"[bold red]Error:[/] Failed to access repository: {e}")
         return []
-    
+
     # Create issues for each non-compliant monitor
     created_issues = []
-    
+
     for monitor in monitors:
         # Create issue title
         title = f"Non-compliant tags found in Sumo Logic monitor: {monitor['name']}"
-        
+
         # Create issue body
         body = f"""
 ## Non-compliant Monitor Tags
@@ -118,44 +122,54 @@ The following tags on this monitor are compliant:
 
 Please update the monitor to use only approved tags.
 """
-        
+
         # Create labels
         labels = ["sumo-logic", "monitor-tags", "automated"]
-        
+
         try:
             # Check if issue already exists
             existing_issues = list(repo.get_issues(state="open", labels=labels))
             duplicate_issue = False
-            
+
             for issue in existing_issues:
-                if monitor['name'] in issue.title:
-                    console.print(f"[yellow]Issue already exists for monitor {monitor['name']}[/]")
+                if monitor["name"] in issue.title:
+                    console.print(
+                        f"[yellow]Issue already exists for monitor {monitor['name']}[/]"
+                    )
                     duplicate_issue = True
-                    created_issues.append({
-                        "url": issue.html_url,
-                        "number": issue.number,
-                        "title": issue.title,
-                        "monitor_id": monitor['id'],
-                        "monitor_name": monitor['name'],
-                        "status": "existing"
-                    })
+                    created_issues.append(
+                        {
+                            "url": issue.html_url,
+                            "number": issue.number,
+                            "title": issue.title,
+                            "monitor_id": monitor["id"],
+                            "monitor_name": monitor["name"],
+                            "status": "existing",
+                        }
+                    )
                     break
-            
+
             if not duplicate_issue:
                 # Create new issue
                 issue = repo.create_issue(title=title, body=body, labels=labels)
-                console.print(f"[green]Created issue #{issue.number} for monitor {monitor['name']}[/]")
-                
-                created_issues.append({
-                    "url": issue.html_url,
-                    "number": issue.number,
-                    "title": issue.title,
-                    "monitor_id": monitor['id'],
-                    "monitor_name": monitor['name'],
-                    "status": "created"
-                })
-                
+                console.print(
+                    f"[green]Created issue #{issue.number} for monitor {monitor['name']}[/]"
+                )
+
+                created_issues.append(
+                    {
+                        "url": issue.html_url,
+                        "number": issue.number,
+                        "title": issue.title,
+                        "monitor_id": monitor["id"],
+                        "monitor_name": monitor["name"],
+                        "status": "created",
+                    }
+                )
+
         except github.GithubException as e:
-            console.print(f"[bold red]Error:[/] Failed to create issue for monitor {monitor['name']}: {e}")
-    
-    return created_issues 
+            console.print(
+                f"[bold red]Error:[/] Failed to create issue for monitor {monitor['name']}: {e}"
+            )
+
+    return created_issues

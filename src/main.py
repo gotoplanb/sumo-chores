@@ -12,9 +12,16 @@ from typing import Dict, List, Optional, Set, Any
 import typer
 from rich.console import Console
 
-from src.role_checker import check_user_roles
-from src.monitor_validator import validate_monitor_tags
-from src.github_utils import set_github_output
+# Try importing from src package first (for Docker/GitHub Actions)
+# If that fails, try relative imports (for local development)
+try:
+    from src.role_checker import check_user_roles
+    from src.monitor_validator import validate_monitor_tags
+    from src.github_utils import set_github_output
+except ModuleNotFoundError:
+    from role_checker import check_user_roles
+    from monitor_validator import validate_monitor_tags
+    from github_utils import set_github_output
 
 # Initialize console for rich output
 console = Console()
@@ -49,7 +56,9 @@ async def main_async(
         sys.exit(1)
 
     if "monitor-tags" in task_list and not tag_allowlist:
-        console.print("[bold red]Error:[/] tag_allowlist is required for monitor-tags task")
+        console.print(
+            "[bold red]Error:[/] tag_allowlist is required for monitor-tags task"
+        )
         sys.exit(1)
 
     # Parse tag allowlist if provided
@@ -97,10 +106,16 @@ def main(
         help="Comma-separated list of tasks to run (role-check, monitor-tags, all)",
     ),
     sumo_access_id: str = typer.Option(
-        ..., "--sumo-access-id", envvar="INPUT_SUMO_ACCESS_ID", help="Sumo Logic Access ID"
+        ...,
+        "--sumo-access-id",
+        envvar="INPUT_SUMO_ACCESS_ID",
+        help="Sumo Logic Access ID",
     ),
     sumo_access_key: str = typer.Option(
-        ..., "--sumo-access-key", envvar="INPUT_SUMO_ACCESS_KEY", help="Sumo Logic Access Key"
+        ...,
+        "--sumo-access-key",
+        envvar="INPUT_SUMO_ACCESS_KEY",
+        help="Sumo Logic Access Key",
     ),
     role_id: Optional[str] = typer.Option(
         None,
@@ -132,7 +147,7 @@ def main(
     """
     # Check for GitHub Actions environment
     in_github_actions = os.environ.get("GITHUB_ACTIONS") == "true"
-    
+
     if in_github_actions:
         console.print("[bold]Running in GitHub Actions environment[/]")
     else:
@@ -153,4 +168,4 @@ def main(
 
 
 if __name__ == "__main__":
-    app() 
+    app()
