@@ -25,18 +25,18 @@ This GitHub Action will help with Sumo Logic administration tasks, packaged as a
 - [x] Implement user fetching from Sumo Logic API
 - [x] Implement role checking logic
 - [x] Add output formatting for role check results
-- [ ] Add testing for role checker
+- [x] Add testing for role checker
 
 ### 🏷️ Monitor Tag Validator
 - [x] Implement monitor fetching from Sumo Logic API
 - [x] Implement tag validation against allowlist
 - [x] Create GitHub issues for non-compliant monitors
-- [ ] Add testing for monitor tag validator
+- [x] Add testing for monitor tag validator
 
 ### 🧪 Testing
-- [ ] Create unit tests
-- [ ] Set up integration tests
-- [ ] Create test fixtures and mocks
+- [x] Create unit tests
+- [x] Set up integration tests
+- [x] Create test fixtures and mocks
 - [x] Add test workflow in GitHub Actions
 
 ### 📚 Documentation

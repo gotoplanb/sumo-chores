@@ -167,6 +167,60 @@ make docker-build
 make docker-run TASKS=all SUMO_ACCESS_ID=your-id SUMO_ACCESS_KEY=your-key ROLE_ID=your-role-id TAG_ALLOWLIST=prod,dev,staging,test
 ```
 
+## Testing
+
+The project includes unit and integration tests using pytest. Mock data is provided to simulate API responses.
+
+### Setup for Testing
+
+1. Create a `.env` file with your testing credentials:
+
+   ```bash
+   # Either copy and edit .env.example manually
+   cp .env.example .env
+   
+   # Or use the interactive setup script
+   ./create_env.py
+   ```
+
+2. Install test dependencies:
+
+   ```bash
+   make setup
+   ```
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run specific test file
+python -m pytest tests/unit/test_role_checker.py -v
+
+# Run with coverage report
+python -m pytest --cov=src tests/
+```
+
+### Test Structure
+
+- **Unit Tests**: Test individual components in isolation
+  - `tests/unit/test_role_checker.py`: Tests for the role checker functionality
+  - `tests/unit/test_monitor_validator.py`: Tests for the monitor tag validator
+  - `tests/unit/test_github_utils.py`: Tests for GitHub utility functions
+
+- **Integration Tests**: Test components working together
+  - `tests/integration/test_main.py`: Tests the main module and task selection
+
+### Mocking and Fixtures
+
+The tests use pytest fixtures defined in `tests/conftest.py` to mock:
+- Sumo Logic API responses
+- GitHub API interactions
+- Environment variables
+
+This allows for testing without actual API calls or credentials.
+
 ## License
 
 MIT
