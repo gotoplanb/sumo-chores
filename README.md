@@ -128,6 +128,10 @@ This project uses a Makefile to simplify development tasks. Make sure you have P
 ### Setup Development Environment
 
 ```bash
+# Install as a development package
+pip install -e .
+
+# Or use make
 make setup
 ```
 
@@ -150,11 +154,14 @@ make run-all SUMO_ACCESS_ID=your-id SUMO_ACCESS_KEY=your-key ROLE_ID=your-role-i
 # Format code with Black
 make format
 
-# Lint code with pylint
+# Lint code with flake8
 make lint
 
 # Run tests
 make test
+
+# Run tests with coverage
+make test-cov
 ```
 
 ### Docker Testing
@@ -165,6 +172,51 @@ make docker-build
 
 # Run in Docker container
 make docker-run TASKS=all SUMO_ACCESS_ID=your-id SUMO_ACCESS_KEY=your-key ROLE_ID=your-role-id TAG_ALLOWLIST=prod,dev,staging,test
+```
+
+## Project Structure
+
+The project is organized as a Python package:
+
+```
+sumo-chores/
+├── action.yml           # GitHub Action configuration
+├── Dockerfile           # Docker configuration
+├── requirements.txt     # Dependencies
+├── setup.py             # Package setup for development installation
+├── setup.cfg            # Configuration for tools like flake8
+├── README.md
+├── PROJECT_PLAN.md
+├── src/                 # Source code
+│   ├── __init__.py
+│   ├── main.py          # Entry point
+│   ├── role_checker.py  # Role checker implementation
+│   ├── monitor_validator.py # Monitor tag validator implementation
+│   └── github_utils.py  # GitHub utilities
+└── tests/               # Tests
+    ├── __init__.py
+    ├── conftest.py      # Test fixtures
+    ├── integration/     # Integration tests
+    │   ├── __init__.py
+    │   └── test_main.py
+    └── unit/            # Unit tests
+        ├── __init__.py
+        ├── test_github_utils.py
+        ├── test_monitor_validator.py
+        └── test_role_checker.py
+```
+
+### Import Handling
+
+The project uses a flexible import system to handle both local development and Docker/GitHub Actions environments:
+
+```python
+# Try importing from src package first (for Docker/GitHub Actions)
+try:
+    from src.github_utils import create_github_issues
+# If that fails, try relative imports (for local development)
+except ModuleNotFoundError:
+    from github_utils import create_github_issues
 ```
 
 ## Testing
@@ -211,6 +263,11 @@ python -m pytest --cov=src tests/
 
 - **Integration Tests**: Test components working together
   - `tests/integration/test_main.py`: Tests the main module and task selection
+
+### Test Status
+
+- ✅ Role Checker tests are fully implemented and passing
+- ⏸️ Monitor Validator tests are temporarily disabled while that module undergoes refactoring
 
 ### Mocking and Fixtures
 
