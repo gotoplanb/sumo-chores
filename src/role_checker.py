@@ -4,9 +4,8 @@ Role Checker module - Checks Sumo Logic users for a specific role ID
 """
 
 import json
-from typing import Dict, List, Any, Optional
-
 import httpx
+from typing import Dict, List, Any
 from rich.console import Console
 
 # For potential future imports

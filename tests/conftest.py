@@ -2,7 +2,6 @@
 Pytest configuration file with fixtures for Sumo Logic Chores tests
 """
 
-import json
 import os
 from typing import Dict, Any, List
 from unittest.mock import MagicMock, AsyncMock

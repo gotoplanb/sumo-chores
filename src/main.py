@@ -5,9 +5,8 @@ Sumo Logic Chores - GitHub Action for Sumo Logic administration tasks
 
 import os
 import sys
-import json
 import asyncio
-from typing import Dict, List, Optional, Set, Any
+from typing import Dict, Optional, Set, Any
 
 import typer
 from rich.console import Console

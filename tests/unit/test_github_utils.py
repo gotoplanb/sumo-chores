@@ -3,7 +3,6 @@ Unit tests for github_utils module
 """
 
 import os
-import json
 import pytest
 import tempfile
 from unittest.mock import patch, MagicMock

@@ -151,8 +151,9 @@ async def validate_monitor_tags(
                 compliant_tags = tags & allowed_tags
 
                 if non_compliant_tags:
+                    tags_str = ", ".join(non_compliant_tags)
                     console.print(
-                        f"[yellow]⚠[/] Monitor {monitor_name} has non-compliant tags: {', '.join(non_compliant_tags)}"
+                        f"[yellow]⚠[/] Monitor {monitor_name} has non-compliant tags: {tags_str}"
                     )
 
                     # Extract API path for monitor URL
@@ -183,10 +184,10 @@ async def validate_monitor_tags(
                     non_compliant_monitors.append(monitor_info)
 
             # Create GitHub issues if token is provided
-            issues = []
+            github_issues = []
             if github_token and non_compliant_monitors:
                 console.print("Creating GitHub issues for non-compliant monitors...")
-                issues = await create_github_issues(
+                github_issues = await create_github_issues(
                     monitors=non_compliant_monitors, github_token=github_token
                 )
 
@@ -196,14 +197,20 @@ async def validate_monitor_tags(
                 "non_compliant_count": len(non_compliant_monitors),
             }
 
+            # Add GitHub issues to results if any were created
+            if github_issues:
+                results["github_issues"] = json.dumps(github_issues)
+
             # Print summary
             if non_compliant_monitors:
+                count = len(non_compliant_monitors)
                 console.print(
-                    f"[bold yellow]Found {len(non_compliant_monitors)} monitors with non-compliant tags[/]"
+                    f"[bold yellow]Found {count} monitors with non-compliant tags[/]"
                 )
                 for monitor in non_compliant_monitors:
+                    tag_list = ", ".join(monitor["non_compliant_tags"])
                     console.print(
-                        f"  • {monitor['name']} - Non-compliant tags: {', '.join(monitor['non_compliant_tags'])}"
+                        f"  • {monitor['name']} - Non-compliant tags: {tag_list}"
                     )
             else:
                 console.print("[bold green]All monitors have compliant tags[/]")
@@ -211,8 +218,9 @@ async def validate_monitor_tags(
             return results
 
         except httpx.HTTPStatusError as e:
+            status_code = e.response.status_code
             console.print(
-                f"[bold red]Error:[/] API request failed with status {e.response.status_code}"
+                f"[bold red]Error:[/] API request failed with status {status_code}"
             )
             console.print(f"Response: {e.response.text}")
             raise

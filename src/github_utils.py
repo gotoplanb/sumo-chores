@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-GitHub utilities module - Functions for GitHub Actions outputs and issue creation
+GitHub utilities for creating issues and setting outputs
 """
 
 import os
-import json
 from typing import Dict, List, Any, Optional
 
 import github
@@ -101,9 +100,18 @@ async def create_github_issues(
         # Create issue title
         title = f"Non-compliant tags found in Sumo Logic monitor: {monitor['name']}"
 
-        # Create issue body
+        # Format compliant tags display string
+        compliant_tags = monitor["compliant_tags"]
+
+        def format_tag(tag):
+            return f"`{tag}`"
+
+        formatted_tags = [format_tag(tag) for tag in compliant_tags]
+        compliant_tags_display = ", ".join(formatted_tags) if compliant_tags else "None"
+
+        # Create issue body using template
         body = f"""
-## Non-compliant Monitor Tags
+## Monitor Tag Violation
 
 A Sumo Logic monitor has been found with non-compliant tags.
 
@@ -112,13 +120,13 @@ A Sumo Logic monitor has been found with non-compliant tags.
 - **ID**: {monitor['id']}
 - **URL**: {monitor['url']}
 
-### Tag Issues
+### Non-compliant Tags
 The following tags are not on the allowlist:
 {', '.join([f'`{tag}`' for tag in monitor['non_compliant_tags']])}
 
 ### Compliant Tags
 The following tags on this monitor are compliant:
-{', '.join([f'`{tag}`' for tag in monitor['compliant_tags']]) if monitor['compliant_tags'] else 'None'}
+{compliant_tags_display}
 
 Please update the monitor to use only approved tags.
 """

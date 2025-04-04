@@ -4,12 +4,14 @@ Unit tests for monitor_validator module
 
 import json
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch, AsyncMock
 
 from src.monitor_validator import validate_monitor_tags
 
 
-@pytest.mark.skip(reason="Temporarily disabled while monitor_validator needs more attention")
+@pytest.mark.skip(
+    reason="Temporarily disabled while monitor_validator needs more attention"
+)
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_with_violations(mock_httpx_client):
     """Test validate_monitor_tags when monitors with non-compliant tags are found"""
@@ -71,7 +73,9 @@ async def test_validate_monitor_tags_with_violations(mock_httpx_client):
                     assert set(monitor["compliant_tags"]) == {"prod"}
 
 
-@pytest.mark.skip(reason="Temporarily disabled while monitor_validator needs more attention")
+@pytest.mark.skip(
+    reason="Temporarily disabled while monitor_validator needs more attention"
+)
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_no_violations(mock_httpx_client):
     """Test validate_monitor_tags when all monitors have compliant tags"""
@@ -108,7 +112,9 @@ async def test_validate_monitor_tags_no_violations(mock_httpx_client):
         assert len(non_compliant_monitors) == 0
 
 
-@pytest.mark.skip(reason="Temporarily disabled while monitor_validator needs more attention")
+@pytest.mark.skip(
+    reason="Temporarily disabled while monitor_validator needs more attention"
+)
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
     """Test validate_monitor_tags with GitHub issue creation"""
@@ -148,7 +154,8 @@ async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
         with patch(
             "src.monitor_validator.create_github_issues", return_value=mock_issues
         ) as mock_create_issues:
-            results = await validate_monitor_tags(
+            # Call the function
+            await validate_monitor_tags(
                 sumo_access_id="test_id",
                 sumo_access_key="test_key",
                 allowed_tags=allowed_tags,
@@ -160,7 +167,9 @@ async def test_validate_monitor_tags_with_github_issues(mock_httpx_client):
             assert mock_create_issues.called
 
 
-@pytest.mark.skip(reason="Temporarily disabled while monitor_validator needs more attention")
+@pytest.mark.skip(
+    reason="Temporarily disabled while monitor_validator needs more attention"
+)
 @pytest.mark.asyncio
 async def test_validate_monitor_tags_api_error(mock_httpx_client):
     """Test validate_monitor_tags when the API returns an error"""
